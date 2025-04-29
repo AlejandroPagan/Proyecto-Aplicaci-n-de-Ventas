@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Agregar Ventas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"
+            android:layout_gravity="center"/>
+
+        <EditText
+            android:id="@+id/etComercial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Número o nombre del comercial"
+            android:inputType="textPersonName"
+            android:layout_marginBottom="16dp"/>
+
+        <EditText
+            android:id="@+id/etVentas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Número de ventas"
+            android:inputType="number"
+            android:layout_marginBottom="24dp"/>
+
+        <Button
+            android:id="@+id/btnGuardar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Guardar ventas"
+            android:backgroundTint="#00796B"
+            android:textColor="#FFFFFF"/>
+
+        <TextView
+            android:id="@+id/tvMesActual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Mes actual: "
+            android:textStyle="italic"
+            android:textColor="#333"/>
+
+        <TableLayout
+            android:id="@+id/tablaVentas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            android:background="#EEEEEE"
+            android:layout_marginTop="16dp">
+
+            <TableRow>
+                <TextView android:text="Comercial" android:textStyle="bold"/>
+                <TextView android:text="Enero" android:textStyle="bold"/>
+                <TextView android:text="Febrero" android:textStyle="bold"/>
+                <TextView android:text="Marzo" android:textStyle="bold"/>
+                <TextView android:text="Abril" android:textStyle="bold"/>
+                <TextView android:text="Mayo" android:textStyle="bold"/>
+                <TextView android:text="Junio" android:textStyle="bold"/>
+                <TextView android:text="Julio" android:textStyle="bold"/>
+                <TextView android:text="Agosto" android:textStyle="bold"/>
+                <TextView android:text="Septiembre" android:textStyle="bold"/>
+                <TextView android:text="Octubre" android:textStyle="bold"/>
+                <TextView android:text="Noviembre" android:textStyle="bold"/>
+                <TextView android:text="Diciembre" android:textStyle="bold"/>
+            </TableRow>
+
+            <!-- Las nuevas filas se añadirán dinámicamente desde Java -->
+
+        </TableLayout>
+
+    </LinearLayout>
+</ScrollView>
