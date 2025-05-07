@@ -2,6 +2,9 @@ package com.example.aplicacinaselab02;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -12,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -22,16 +26,24 @@ import com.github.mikephil.charting.data.BarEntry;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
     private BarChart barChart;
-    private Button btnActualizar;
+    private Button btnActualizar,btnVentaEspecial;
     private TextView totalVentas;
     private TableLayout table;
+    private TextView mesMasVentas;
+    private Intent intent;
 
-    // Lanzador de actividad para recibir resultados
+    private gestorBaseDatos db;
+
+    private final String[] MESES = {
+            "enero", "febrero", "marzo", "abril", "mayo",
+            "junio", "julio", "agosto", "septiembre", "octubre",
+            "noviembre", "diciembre"
+    };
+
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
     @SuppressLint("MissingInflatedId")
@@ -40,81 +52,138 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mesMasVentas = findViewById(R.id.mesMasVentas);
         barChart = findViewById(R.id.barChart);
         btnActualizar = findViewById(R.id.btnActualizar);
+        btnVentaEspecial= findViewById(R.id.btnVentaEspecial);
         totalVentas = findViewById(R.id.totalVentas);
         table = findViewById(R.id.tablero_main);
 
-        mostrarGrafico();
+        db = new gestorBaseDatos(this);
 
-        // Configurar lanzador para recibir resultados de la actividad AgregarVentasActivity
+        // Cargar datos reales desde la base de datos
+        cargarDatosDesdeBaseDeDatos();
+
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data != null) {
-                            ArrayList<String> ventas = data.getStringArrayListExtra("ventas");
-                            // Actualizar la tabla con los nuevos datos
-                            updateTable(ventas);
-                        }
+                        cargarDatosDesdeBaseDeDatos(); // Recargar datos reales al volver
                     }
                 }
         );
 
-        // Configurar el botón para abrir la actividad AgregarVentasActivity
-        btnActualizar.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AgregarVentasActivity.class);
-            activityResultLauncher.launch(intent);
+        btnActualizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AgregarVentasActivity.class);
+                activityResultLauncher.launch(intent);
+            }
+        });
+
+        btnVentaEspecial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AgregarVentasEspeciales2.class);
+                activityResultLauncher.launch(intent);
+            }
         });
     }
 
-    // Método para agregar los datos de ventas a la tabla de la actividad principal
-    private void updateTable(ArrayList<String> ventas) {
-        for (String venta : ventas) {
-            String[] datos = venta.split(",");
-            String comercial = datos[0];
-            int ventasMes = Integer.parseInt(datos[1]);
+    // Método para cargar todos los datos desde la base de datos
+    private void cargarDatosDesdeBaseDeDatos() {
+        table.removeAllViews(); // Limpia la tabla
+// Encabezado dinámico
+        TableRow header = new TableRow(this);
+        header.setBackgroundColor(0xFFCCCCCC); // Gris claro
 
-            // Aquí buscamos la fila correspondiente al comercial
-            TableRow row = new TableRow(this);
+        String[] columnas = {"NUMID", "NOMBRE", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+                "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE","ELIMINAR"};
 
-            // Creación de los TextViews de cada columna
-            TextView tvComercial = new TextView(this);
-            tvComercial.setText(comercial);
-            tvComercial.setPadding(6, 6, 6, 6);
-            tvComercial.setGravity(Gravity.CENTER);
-            tvComercial.setTextColor(getResources().getColor(android.R.color.black));
-
-            TextView tvVentas = new TextView(this);
-            tvVentas.setText(String.valueOf(ventasMes));
-            tvVentas.setPadding(6, 6, 6, 6);
-            tvVentas.setGravity(Gravity.CENTER);
-            tvVentas.setTextColor(getResources().getColor(android.R.color.black));
-
-            // Añadimos las celdas a la fila
-            row.addView(tvComercial);
-            row.addView(tvVentas);
-
-            // Añadimos la fila a la tabla
-            table.addView(row);
+        for (String col : columnas) {
+            TextView celda = crearCelda(col);
+            celda.setTypeface(null, android.graphics.Typeface.BOLD);
+            header.addView(celda);
         }
+
+        table.addView(header);
+
+        List<BarEntry> entradasGrafico = new ArrayList<>();
+        int[] ventasMensuales = new int[12];
+        int total = 0;
+
+        // Realiza la consulta para obtener todos los datos de ventas_comerciales
+        Cursor cursor = db.getReadableDatabase().rawQuery("SELECT * FROM ventas_comerciales", null);
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow("id_comercial"));
+                String nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"));
+                TableRow row = new TableRow(this);
+                row.addView(crearCelda(String.valueOf(id)));
+                row.addView(crearCelda(nombre));
+
+
+                // Agregar las ventas por mes a la fila y actualizar las ventas mensuales
+                for (int i = 0; i < MESES.length; i++) {
+                    int ventas = cursor.getInt(cursor.getColumnIndexOrThrow(MESES[i]));
+                    row.addView(crearCelda(String.valueOf(ventas)));
+
+                    // Acumular ventas mensuales y el total
+                    ventasMensuales[i] += ventas;
+                    total += ventas;
+                }
+
+                // Añadir la fila de datos a la tabla
+                table.addView(row);
+                Button btnEliminar = new Button(this);
+                btnEliminar.setText("🗑️");
+                btnEliminar.setBackgroundColor(Color.TRANSPARENT);
+                btnEliminar.setPadding(6, 6, 6, 6);
+                btnEliminar.setTextColor(Color.RED);
+
+// Necesitas final para usar en el OnClick
+                final int idFinal = id;
+
+                btnEliminar.setOnClickListener(v -> {
+                    // Crear el AlertDialog
+                                db.getWritableDatabase().delete("ventas_comerciales", "id_comercial = ?", new String[]{String.valueOf(idFinal)});
+                                cargarDatosDesdeBaseDeDatos(); // Recargar la tabla actualizada
+                });
+
+
+                row.addView(btnEliminar);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        // Crear las entradas para el gráfico de barras con las ventas mensuales
+        for (int i = 0; i < ventasMensuales.length; i++) {
+            entradasGrafico.add(new BarEntry(i, ventasMensuales[i]));
+        }
+
+        // Encontrar el mes con el máximo de ventas
+        int mesMax = 0;
+        int maxVentas = 0;
+        for (int i = 0; i < ventasMensuales.length; i++) {
+            if (ventasMensuales[i] > maxVentas) {
+                maxVentas = ventasMensuales[i];
+                mesMax = i;
+            }
+        }
+
+        // Mostrar el mes con las ventas más altas
+        mesMasVentas.setText(capitalizar(MESES[mesMax]));
+
+        // Actualizar el total de ventas
+        totalVentas.setText(String.valueOf(total));
+
+        // Mostrar el gráfico con las ventas mensuales
+        mostrarGrafico(entradasGrafico);
+
+
     }
 
-    // Método para agregar un comercial a la tabla de ventas
-    private void agregarComercial(String codigo, String nombre, int enero, int febrero, int marzo, int s14, int s15) {
-        TableRow row = new TableRow(this);
-
-        row.addView(crearCelda(codigo));
-        row.addView(crearCelda(nombre));
-        row.addView(crearCelda(String.valueOf(enero)));
-        row.addView(crearCelda(String.valueOf(febrero)));
-        row.addView(crearCelda(String.valueOf(marzo)));
-        row.addView(crearCelda(String.valueOf(s14)));
-        row.addView(crearCelda(String.valueOf(s15)));
-
-        table.addView(row);
-    }
 
     // Método para crear celdas de la tabla
     private TextView crearCelda(String texto) {
@@ -126,21 +195,8 @@ public class MainActivity extends AppCompatActivity {
         return cell;
     }
 
-    // Método para mostrar el gráfico de ventas
-    private void mostrarGrafico() {
-        Random random = new Random();
-        List<BarEntry> entradas = new ArrayList<>();
-        String[] meses = {"Ene", "Feb", "Mar", "Abr", "May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"};
-        int total = 0;
-
-        for (int i = 0; i < meses.length; i++) {
-            int ventas = 10 + random.nextInt(50);
-            entradas.add(new BarEntry(i, ventas));
-            total += ventas;
-        }
-
-        totalVentas.setText("Total ventas: " + total);
-
+    // Mostrar gráfica con datos proporcionados
+    private void mostrarGrafico(List<BarEntry> entradas) {
         BarDataSet dataSet = new BarDataSet(entradas, "Ventas por mes");
         dataSet.setColor(getResources().getColor(R.color.black));
         BarData data = new BarData(dataSet);
@@ -154,6 +210,11 @@ public class MainActivity extends AppCompatActivity {
         barChart.setDescription(description);
         barChart.invalidate();
     }
+    private String capitalizar(String texto) {
+        if (texto == null || texto.isEmpty()) return texto;
+        return texto.substring(0, 1).toUpperCase() + texto.substring(1);
+    }
 }
+
 
 

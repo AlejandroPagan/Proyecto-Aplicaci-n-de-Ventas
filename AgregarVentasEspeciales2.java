@@ -1,11 +1,19 @@
 package com.example.aplicacinaselab02;
 
+import android.os.Bundle;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,12 +22,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Calendar;
 
-public class AgregarVentasActivity extends AppCompatActivity {
+public class AgregarVentasEspeciales2 extends AppCompatActivity {
 
-    private EditText etIdComercial, etNombreComercial, etCantidadVentas;
-    private Button btnGuardar,btnBorrar;
+    private EditText etCantidadVentas;
+    private Button btnGuardar, btnBorrar;
     private TextView tvMesActual;
     private TableLayout tablaVentas;
+    private RadioGroup rgTiposComercial;
     private gestorBaseDatos db;
 
     private String mesActual;
@@ -28,13 +37,13 @@ public class AgregarVentasActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_agregar_ventas);
+        setContentView(R.layout.activity_agregar_ventas_especiales2);
 
-        etIdComercial = findViewById(R.id.etNumeroComercial);
-        etNombreComercial = findViewById(R.id.etNombreComercial);
+        // Ya no usamos estos campos porque se seleccionan automáticamente
+        rgTiposComercial = findViewById(R.id.rgTiposComercial);
         etCantidadVentas = findViewById(R.id.etCantidadVentas);
         btnGuardar = findViewById(R.id.btnGuardar);
-        btnBorrar=findViewById(R.id.btnBorrar);
+        btnBorrar = findViewById(R.id.btnBorrar);
         tvMesActual = findViewById(R.id.tvMesActual);
         tablaVentas = findViewById(R.id.tablaVentas);
 
@@ -47,39 +56,58 @@ public class AgregarVentasActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 guardarVentas();
+                setResult(RESULT_OK);
+
             }
         });
+
         btnBorrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                db.vaciarTabla();
+                setResult(RESULT_OK);
                 finish();
             }
         });
     }
 
     private void guardarVentas() {
-        String idStr = etIdComercial.getText().toString().trim();
-        String nombre = etNombreComercial.getText().toString().trim();
-        String cantidadStr = etCantidadVentas.getText().toString().trim();
+        // Detectar selección del tipo de comercial
+        int selectedId = rgTiposComercial.getCheckedRadioButtonId();
+        int id = -1;
+        String nombre = "";
 
-        if (idStr.isEmpty() || cantidadStr.isEmpty()) {
-            Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+        if (selectedId == R.id.rbTeleventa) {
+            id = 1;
+            nombre = "TV";
+        } else if (selectedId == R.id.rbRenovacion) {
+            id = 2;
+            nombre = "RV";
+        } else if (selectedId == R.id.rbPrivada) {
+            id = 3;
+            nombre = "PV"; // <- CORRECTO
+        }
+        else {
+            Toast.makeText(this, "Selecciona un tipo de comercial", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int id = Integer.parseInt(idStr);
-        int cantidad = Integer.parseInt(cantidadStr);
+        String cantidadStr = etCantidadVentas.getText().toString().trim();
+        if (cantidadStr.isEmpty()) {
+            Toast.makeText(this, "Por favor, introduce la cantidad de ventas", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        int cantidad = Integer.parseInt(cantidadStr);
         db.insertarOVentasAcumuladas(id, nombre, mesActual, cantidad);
 
         Toast.makeText(this, "Ventas guardadas correctamente", Toast.LENGTH_SHORT).show();
 
-        // Volver a MainActivity
+        // Limpiar el formulario:
+        etCantidadVentas.setText("");
+        rgTiposComercial.clearCheck();
         setResult(RESULT_OK);
-        finish();
-
     }
+
 
     private String getMonthKey(int month) {
         String[] keys = {"enero", "febrero", "marzo", "abril", "mayo", "junio",

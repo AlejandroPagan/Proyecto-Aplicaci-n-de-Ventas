@@ -16,31 +16,42 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
 
+        <!-- Campo: Nombre del comercial -->
         <EditText
-            android:id="@+id/etComercial"
+            android:id="@+id/etNombreComercial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Número o nombre del comercial"
+            android:hint="Nombre del comercial"
             android:inputType="textPersonName"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="12dp" />
 
+        <!-- Campo: Número del comercial -->
         <EditText
-            android:id="@+id/etVentas"
+            android:id="@+id/etNumeroComercial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Número de ventas"
+            android:hint="Número del comercial"
             android:inputType="number"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="12dp" />
+
+        <!-- Campo: Cantidad de ventas -->
+        <EditText
+            android:id="@+id/etCantidadVentas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Cantidad de ventas"
+            android:inputType="number"
+            android:layout_marginBottom="24dp" />
 
         <Button
             android:id="@+id/btnGuardar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="#104313"
             android:text="Guardar ventas"
-            android:backgroundTint="#00796B"
-            android:textColor="#FFFFFF"/>
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:id="@+id/tvMesActual"
@@ -49,7 +60,7 @@
             android:layout_marginTop="24dp"
             android:text="Mes actual: "
             android:textStyle="italic"
-            android:textColor="#333"/>
+            android:textColor="#333" />
 
         <TableLayout
             android:id="@+id/tablaVentas"
@@ -59,25 +70,14 @@
             android:background="#EEEEEE"
             android:layout_marginTop="16dp">
 
-            <TableRow>
-                <TextView android:text="Comercial" android:textStyle="bold"/>
-                <TextView android:text="Enero" android:textStyle="bold"/>
-                <TextView android:text="Febrero" android:textStyle="bold"/>
-                <TextView android:text="Marzo" android:textStyle="bold"/>
-                <TextView android:text="Abril" android:textStyle="bold"/>
-                <TextView android:text="Mayo" android:textStyle="bold"/>
-                <TextView android:text="Junio" android:textStyle="bold"/>
-                <TextView android:text="Julio" android:textStyle="bold"/>
-                <TextView android:text="Agosto" android:textStyle="bold"/>
-                <TextView android:text="Septiembre" android:textStyle="bold"/>
-                <TextView android:text="Octubre" android:textStyle="bold"/>
-                <TextView android:text="Noviembre" android:textStyle="bold"/>
-                <TextView android:text="Diciembre" android:textStyle="bold"/>
-            </TableRow>
-
-            <!-- Las nuevas filas se añadirán dinámicamente desde Java -->
-
         </TableLayout>
 
+        <Button
+            android:id="@+id/btnBorrar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#00796B"
+            android:text="Borrar tabla"
+            android:textColor="#FFFFFF" />
     </LinearLayout>
 </ScrollView>

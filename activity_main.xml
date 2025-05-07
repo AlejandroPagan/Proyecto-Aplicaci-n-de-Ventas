@@ -5,172 +5,108 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="#FFFFFF">
+        android:background="#FFFFFF"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <!-- KPIs -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal"
-            android:weightSum="2"
-            android:layout_marginBottom="16dp">
+            android:weightSum="2">
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/totalVentas"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="830"
+                    android:text="0"
+                    android:textColor="#000"
                     android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="#000"/>
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:text="Total Ventas"
-                    android:textSize="14sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#666"/>
+                    android:text="Ventas de este año"
+                    android:textColor="#666"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/mesMasVentas"
-                    android:text="Febrero"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="Mes máximo"
+                    android:textColor="#000"
                     android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="#000"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Ventas mes actual"
+                    android:text="Mes con más ventas"
                     android:textColor="#666"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
         <!-- Gráfico -->
-
-        <!-- Botón -->
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/barChart"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#104313"/>
 
+        <!-- Botón -->
         <Button
             android:id="@+id/btnActualizar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/cardview_dark_background"
-            android:text="Actualizar gráfico"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#104313"
+            android:text="Añadir ventas contacto"
             android:textColor="#FFFFFF" />
 
-        <!-- Tabla de grabados -->
+        <Button
+            android:id="@+id/btnVentaEspecial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="#104313"
+            android:text="Añadir Ventas especiales"
+            android:textColor="#FFFFFF" />
+
+        <!-- Tabla dinámica -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="horizontal">
         <TableLayout
             android:id="@+id/tablero_main"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#EFEFEF"
-            android:stretchColumns="*">
-
-            <TableRow>
-
-                <TextView
-                    android:text="NOMBRE"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:text="ENERO"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:text="FEBRERO"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:text="MARZO"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:text="S.14"
-                    android:textStyle="bold" />
-            </TableRow>
-
-            <TableRow>
-
-                <TextView android:text="MARIA" />
-
-                <TextView android:text="23" />
-
-                <TextView android:text="34" />
-
-                <TextView android:text="18" />
-
-                <TextView android:text="3" />
-            </TableRow>
-
-            <TableRow>
-
-                <TextView android:text="MARIA DEL MAR" />
-
-                <TextView android:text="39" />
-
-                <TextView android:text="32" />
-
-                <TextView android:text="24" />
-
-                <TextView android:text="4" />
-            </TableRow>
-
-            <TableRow>
-
-                <TextView android:text="ADRIANA.B." />
-
-                <TextView android:text="31" />
-
-                <TextView android:text="29" />
-
-                <TextView android:text="14" />
-
-                <TextView android:text="2" />
-            </TableRow>
-
-            <TableRow>
-
-                <TextView android:text="LUCIA" />
-
-                <TextView android:text="29" />
-
-                <TextView android:text="19" />
-
-                <TextView android:text="13" />
-
-                <TextView android:text="0" />
-            </TableRow>
-
-            <!-- Puedes añadir más filas según necesites -->
-        </TableLayout>
+            android:stretchColumns="*"/>
+        </HorizontalScrollView>
 
     </LinearLayout>
 </ScrollView>
