@@ -145,10 +145,18 @@ public class MainActivity extends AppCompatActivity {
                 final int idFinal = id;
 
                 btnEliminar.setOnClickListener(v -> {
-                    // Crear el AlertDialog
-                                db.getWritableDatabase().delete("ventas_comerciales", "id_comercial = ?", new String[]{String.valueOf(idFinal)});
-                                cargarDatosDesdeBaseDeDatos(); // Recargar la tabla actualizada
+                    new AlertDialog.Builder(this)
+                            .setTitle("Confirmar eliminación")
+                            .setMessage("¿Estás seguro de que deseas eliminar este registro?")
+                            .setPositiveButton("Sí", (dialog, which) -> {
+                                db.moverVentasAausentes(idFinal); // Suma sus datos a AUSENTES
+                                db.getWritableDatabase().delete("ventas_comerciales", "id_comercial = ?", new String[]{String.valueOf(idFinal)}); // Borra la fila
+                                cargarDatosDesdeBaseDeDatos(); // Refresca la vista
+                            })
+                            .setNegativeButton("Cancelar", null)
+                            .show();
                 });
+
 
 
                 row.addView(btnEliminar);
@@ -197,19 +205,47 @@ public class MainActivity extends AppCompatActivity {
 
     // Mostrar gráfica con datos proporcionados
     private void mostrarGrafico(List<BarEntry> entradas) {
+        // Crear el dataset con color naranja
         BarDataSet dataSet = new BarDataSet(entradas, "Ventas por mes");
-        dataSet.setColor(getResources().getColor(R.color.black));
+        dataSet.setColor(Color.parseColor("#FFA500")); // Naranja
+        dataSet.setValueTextColor(Color.WHITE); // Números blancos encima de cada barra
+        dataSet.setValueTextSize(12f);
+
+        // Crear BarData
         BarData data = new BarData(dataSet);
         data.setBarWidth(0.9f);
 
+        // Aplicar los datos al gráfico
         barChart.setData(data);
         barChart.setFitBars(true);
 
+        // Fondo oscuro
+        barChart.setBackgroundColor(Color.parseColor("#121212")); // gris oscuro o negro
+        barChart.setDrawGridBackground(false); // quita fondo de cuadros si los tuviera
+
+        // Descripción en blanco
         Description description = new Description();
         description.setText("Ventas 2025");
+        description.setTextColor(Color.WHITE);
         barChart.setDescription(description);
+
+        // Ejes en blanco
+        barChart.getAxisLeft().setTextColor(Color.WHITE);
+        barChart.getAxisRight().setTextColor(Color.WHITE);
+        barChart.getXAxis().setTextColor(Color.WHITE);
+
+        // Ejes: líneas blancas
+        barChart.getAxisLeft().setAxisLineColor(Color.WHITE);
+        barChart.getAxisRight().setAxisLineColor(Color.WHITE);
+        barChart.getXAxis().setAxisLineColor(Color.WHITE);
+
+        // Leyenda en blanco
+        barChart.getLegend().setTextColor(Color.WHITE);
+
+        // Forzar redibujado
         barChart.invalidate();
     }
+
     private String capitalizar(String texto) {
         if (texto == null || texto.isEmpty()) return texto;
         return texto.substring(0, 1).toUpperCase() + texto.substring(1);

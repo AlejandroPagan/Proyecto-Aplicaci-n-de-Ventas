@@ -72,9 +72,16 @@
                 android:id="@+id/btnGuardar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#104313"
-                android:text="Guardar ventas"
-                android:textColor="#FFFFFF" />
+                android:layout_marginBottom="24dp"
+                android:text="GUARDAR VENTAS"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:backgroundTint="#1E3A8A"
+                app:cornerRadius="12dp"
+                app:elevation="4dp"
+                android:padding="12dp"
+                app:rippleColor="?attr/colorControlHighlight" />
 
             <TextView
                 android:id="@+id/tvMesActual"
@@ -89,9 +96,16 @@
                 android:id="@+id/btnBorrar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#00796B"
-                android:text="Volver"
-                android:textColor="#FFFFFF" />
+                android:layout_marginBottom="24dp"
+                android:text="VOLVER"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:backgroundTint="#1E3A8A"
+                app:cornerRadius="12dp"
+                app:elevation="4dp"
+                android:padding="12dp"
+                app:rippleColor="?attr/colorControlHighlight" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

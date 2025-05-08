@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class gestorBaseDatos extends SQLiteOpenHelper {
 
     public gestorBaseDatos(@Nullable Context context) {
@@ -47,6 +50,51 @@ public class gestorBaseDatos extends SQLiteOpenHelper {
         }
 
         cursor.close();
+    }
+    public void moverVentasAausentes(int idComercial) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Obtener columnas de la tabla
+        Cursor columnasCursor = db.rawQuery("PRAGMA table_info(ventas_comerciales)", null);
+
+        List<String> columnas = new ArrayList<>();
+        while (columnasCursor.moveToNext()) {
+            String nombreColumna = columnasCursor.getString(columnasCursor.getColumnIndexOrThrow("name"));
+            if (!nombreColumna.equals("id_comercial") && !nombreColumna.equals("nombre")) {
+                columnas.add(nombreColumna);
+            }
+        }
+        columnasCursor.close();
+
+        // Obtener datos del comercial a eliminar
+        Cursor cursorComercial = db.rawQuery("SELECT * FROM ventas_comerciales WHERE id_comercial = ?", new String[]{String.valueOf(idComercial)});
+        if (!cursorComercial.moveToFirst()) {
+            cursorComercial.close();
+            return; // No se encontró el comercial
+        }
+
+        // Obtener datos de AUSENTES
+        Cursor cursorAusentes = db.rawQuery("SELECT * FROM ventas_comerciales WHERE nombre = ?", new String[]{"AUSENTES"});
+        if (!cursorAusentes.moveToFirst()) {
+            cursorAusentes.close();
+            cursorComercial.close();
+            return; // No existe el comercial "AUSENTES"
+        }
+
+        ContentValues valoresActualizados = new ContentValues();
+
+        for (String columna : columnas) {
+            int valorComercial = cursorComercial.getInt(cursorComercial.getColumnIndexOrThrow(columna));
+            int valorAusente = cursorAusentes.getInt(cursorAusentes.getColumnIndexOrThrow(columna));
+            valoresActualizados.put(columna, valorComercial + valorAusente);
+        }
+
+        // Actualizar los datos de AUSENTES
+        db.update("ventas_comerciales", valoresActualizados, "nombre = ?", new String[]{"AUSENTES"});
+
+        // Cerrar cursores
+        cursorComercial.close();
+        cursorAusentes.close();
     }
 
     public void vaciarTabla() {
