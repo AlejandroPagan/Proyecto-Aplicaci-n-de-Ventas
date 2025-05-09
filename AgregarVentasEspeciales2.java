@@ -2,30 +2,23 @@ package com.example.aplicacinaselab02;
 
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
 import android.annotation.SuppressLint;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Calendar;
 
 public class AgregarVentasEspeciales2 extends AppCompatActivity {
 
     private EditText etCantidadVentas;
-    private Button btnGuardar, btnBorrar;
+    private Button btnGuardar, btnBorrar,btnMes;
     private TextView tvMesActual;
     private TableLayout tablaVentas;
     private RadioGroup rgTiposComercial;
@@ -43,9 +36,11 @@ public class AgregarVentasEspeciales2 extends AppCompatActivity {
         rgTiposComercial = findViewById(R.id.rgTiposComercial);
         etCantidadVentas = findViewById(R.id.etCantidadVentas);
         btnGuardar = findViewById(R.id.btnGuardar);
-        btnBorrar = findViewById(R.id.btnBorrar);
+        btnBorrar = findViewById(R.id.btnVolverVenta);
+        btnMes = findViewById(R.id.btnMes);
         tvMesActual = findViewById(R.id.tvMesActual);
         tablaVentas = findViewById(R.id.tablaVentas);
+
 
         mesActual = getMonthKey(Calendar.getInstance().get(Calendar.MONTH));
         tvMesActual.setText("Mes actual: " + capitalizar(mesActual));
@@ -66,6 +61,29 @@ public class AgregarVentasEspeciales2 extends AppCompatActivity {
             public void onClick(View v) {
                 setResult(RESULT_OK);
                 finish();
+            }
+        });
+        btnMes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String[] meses = {
+                        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+                        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+                };
+
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(AgregarVentasEspeciales2.this);
+                builder.setTitle("Selecciona un mes")
+                        .setSingleChoiceItems(meses, -1, null)
+                        .setPositiveButton("Aceptar", (dialog, whichButton) -> {
+                            android.app.AlertDialog alertDialog = (android.app.AlertDialog) dialog;
+                            int selectedPosition = alertDialog.getListView().getCheckedItemPosition();
+                            if (selectedPosition >= 0) {
+                                mesActual = meses[selectedPosition]; // Cambia el mes de guardado
+                                tvMesActual.setText("Mes seleccionado: " + capitalizar(mesActual));
+                            }
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
             }
         });
     }

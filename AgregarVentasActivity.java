@@ -1,7 +1,6 @@
 package com.example.aplicacinaselab02;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +16,7 @@ import java.util.Calendar;
 public class AgregarVentasActivity extends AppCompatActivity {
 
     private EditText etIdComercial, etNombreComercial, etCantidadVentas;
-    private Button btnGuardar,btnBorrar;
+    private Button btnGuardar,btnBorrar,btnMes;
     private TextView tvMesActual;
     private TableLayout tablaVentas;
     private gestorBaseDatos db;
@@ -34,7 +33,8 @@ public class AgregarVentasActivity extends AppCompatActivity {
         etNombreComercial = findViewById(R.id.etNombreComercial);
         etCantidadVentas = findViewById(R.id.etCantidadVentas);
         btnGuardar = findViewById(R.id.btnGuardar);
-        btnBorrar=findViewById(R.id.btnBorrar);
+        btnBorrar=findViewById(R.id.btnVolverVenta);
+        btnMes = findViewById(R.id.btnMes);
         tvMesActual = findViewById(R.id.tvMesActual);
         tablaVentas = findViewById(R.id.tablaVentas);
 
@@ -49,11 +49,35 @@ public class AgregarVentasActivity extends AppCompatActivity {
                 guardarVentas();
             }
         });
+        btnMes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String[] meses = {
+                        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+                        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+                };
+
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(AgregarVentasActivity.this);
+                builder.setTitle("Selecciona un mes")
+                        .setSingleChoiceItems(meses, -1, null)
+                        .setPositiveButton("Aceptar", (dialog, whichButton) -> {
+                            android.app.AlertDialog alertDialog = (android.app.AlertDialog) dialog;
+                            int selectedPosition = alertDialog.getListView().getCheckedItemPosition();
+                            if (selectedPosition >= 0) {
+                                mesActual = meses[selectedPosition]; // Cambia el mes de guardado
+                                tvMesActual.setText("Mes seleccionado: " + capitalizar(mesActual));
+                            }
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
+            }
+        });
+
         btnBorrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                db.vaciarTabla();
-                finish();
+                setResult(RESULT_OK);
+                finish(); // Vuelve a MainActivity, que puede reaccionar en onActivityResult o launcher
             }
         });
     }
@@ -77,8 +101,6 @@ public class AgregarVentasActivity extends AppCompatActivity {
 
         // Volver a MainActivity
         setResult(RESULT_OK);
-        finish();
-
     }
 
     private String getMonthKey(int month) {

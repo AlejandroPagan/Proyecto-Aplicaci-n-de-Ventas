@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -32,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private BarChart barChart;
     private Button btnActualizar,btnVentaEspecial;
     private TextView totalVentas;
-    private TableLayout table;
+    private TableLayout tablaCabecera, tablaCuerpo;
+
     private TextView mesMasVentas;
     private Intent intent;
 
@@ -57,7 +59,20 @@ public class MainActivity extends AppCompatActivity {
         btnActualizar = findViewById(R.id.btnActualizar);
         btnVentaEspecial= findViewById(R.id.btnVentaEspecial);
         totalVentas = findViewById(R.id.totalVentas);
-        table = findViewById(R.id.tablero_main);
+        tablaCabecera = findViewById(R.id.tabla_cabecera);
+        tablaCuerpo = findViewById(R.id.tablero_main);
+        HorizontalScrollView headerScroll = findViewById(R.id.horizontalScrollViewHeader);
+        HorizontalScrollView bodyScroll = findViewById(R.id.horizontalScrollViewBody);
+
+// Sincroniza el desplazamiento horizontal
+        headerScroll.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            bodyScroll.scrollTo(scrollX, 0);
+        });
+
+        bodyScroll.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            headerScroll.scrollTo(scrollX, 0);
+        });
+
 
         db = new gestorBaseDatos(this);
 
@@ -92,7 +107,9 @@ public class MainActivity extends AppCompatActivity {
 
     // Método para cargar todos los datos desde la base de datos
     private void cargarDatosDesdeBaseDeDatos() {
-        table.removeAllViews(); // Limpia la tabla
+        tablaCabecera.removeAllViews(); // Limpia la cabecera
+        tablaCuerpo.removeAllViews();   // Limpia el cuerpo
+
 // Encabezado dinámico
         TableRow header = new TableRow(this);
         header.setBackgroundColor(0xFFCCCCCC); // Gris claro
@@ -106,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
             header.addView(celda);
         }
 
-        table.addView(header);
+        tablaCabecera.addView(header);
+
 
         List<BarEntry> entradasGrafico = new ArrayList<>();
         int[] ventasMensuales = new int[12];
@@ -134,12 +152,14 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // Añadir la fila de datos a la tabla
-                table.addView(row);
+                tablaCuerpo.addView(row);
+
                 Button btnEliminar = new Button(this);
                 btnEliminar.setText("🗑️");
                 btnEliminar.setBackgroundColor(Color.TRANSPARENT);
                 btnEliminar.setPadding(6, 6, 6, 6);
                 btnEliminar.setTextColor(Color.RED);
+
 
 // Necesitas final para usar en el OnClick
                 final int idFinal = id;
@@ -164,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
             } while (cursor.moveToNext());
         }
         cursor.close();
-
+        igualarAnchoColumnas(tablaCabecera, tablaCuerpo);
         // Crear las entradas para el gráfico de barras con las ventas mensuales
         for (int i = 0; i < ventasMensuales.length; i++) {
             entradasGrafico.add(new BarEntry(i, ventasMensuales[i]));
@@ -250,6 +270,37 @@ public class MainActivity extends AppCompatActivity {
         if (texto == null || texto.isEmpty()) return texto;
         return texto.substring(0, 1).toUpperCase() + texto.substring(1);
     }
+    private void igualarAnchoColumnas(TableLayout cabecera, TableLayout contenido) {
+        int columnas = cabecera.getChildCount() > 0 ?
+                ((TableRow) cabecera.getChildAt(0)).getChildCount() : 0;
+
+        for (int col = 0; col < columnas; col++) {
+            int maxAncho = 0;
+
+            // Obtener ancho máximo entre cabecera y contenido
+            for (int i = 0; i < contenido.getChildCount(); i++) {
+                TableRow fila = (TableRow) contenido.getChildAt(i);
+                TextView celda = (TextView) fila.getChildAt(col);
+                celda.measure(0, 0);
+                maxAncho = Math.max(maxAncho, celda.getMeasuredWidth());
+            }
+
+            TableRow filaCabecera = (TableRow) cabecera.getChildAt(0);
+            TextView celdaCabecera = (TextView) filaCabecera.getChildAt(col);
+            celdaCabecera.measure(0, 0);
+            maxAncho = Math.max(maxAncho, celdaCabecera.getMeasuredWidth());
+
+            // Aplicar el ancho a todas las celdas de esa columna
+            for (int i = 0; i < contenido.getChildCount(); i++) {
+                TableRow fila = (TableRow) contenido.getChildAt(i);
+                TextView celda = (TextView) fila.getChildAt(col);
+                celda.setWidth(maxAncho);
+            }
+
+            celdaCabecera.setWidth(maxAncho);
+        }
+    }
+
 }
 
 
