@@ -5,18 +5,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:backgroundTint="#F2F4F8">
-
-    <!-- Contenedor con scroll general -->
-    <ScrollView
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#1E3A8A"
+        app:titleTextColor="#FFFFFF"/>
+    <!-- Contenedor con scroll general -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#F2F4F8"
             android:orientation="vertical"
-            android:background="#FFFFFF"
             android:padding="16dp">
 
             <!-- KPIs -->
@@ -90,14 +96,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:text="AÑADIR VENTA CONTACTO"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:textSize="16sp"
                 android:backgroundTint="#1E3A8A"
+                android:padding="12dp"
+                android:text="AÑADIR VENTA CONTACTO"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
                 app:cornerRadius="12dp"
                 app:elevation="4dp"
-                android:padding="12dp"
                 app:rippleColor="?attr/colorControlHighlight" />
 
             <com.google.android.material.button.MaterialButton
@@ -105,22 +111,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                android:text="AÑADIR VENTA ESPECIAL"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:textSize="16sp"
                 android:backgroundTint="#1E3A8A"
+                android:padding="12dp"
+                android:text="AÑADIR VENTA ESPECIAL"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
                 app:cornerRadius="12dp"
                 app:elevation="4dp"
-                android:padding="12dp"
                 app:rippleColor="?attr/colorControlHighlight" />
 
             <!-- Cabecera fija -->
+
+
+            <!-- Scroll horizontal sincronizado con header, pero scroll vertical libre -->
             <HorizontalScrollView
                 android:id="@+id/horizontalScrollViewHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="horizontal">
+                android:scrollbars="horizontal"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp">
 
                 <!-- Tabla de encabezado fija -->
                 <TableLayout
@@ -129,13 +140,13 @@
                     android:layout_height="wrap_content"
                     android:stretchColumns="*" />
             </HorizontalScrollView>
-
-            <!-- Scroll horizontal sincronizado con header, pero scroll vertical libre -->
             <HorizontalScrollView
                 android:id="@+id/horizontalScrollViewBody"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"
+                android:layout_marginBottom="16dp"
                 android:scrollbars="horizontal">
 
                 <ScrollView
@@ -143,7 +154,6 @@
                     android:layout_height="match_parent"
                     android:scrollbars="vertical">
 
-                    <!-- Tabla con el cuerpo dinámico -->
                     <TableLayout
                         android:id="@+id/tablero_main"
                         android:layout_width="wrap_content"
@@ -151,7 +161,7 @@
                         android:stretchColumns="*" />
                 </ScrollView>
             </HorizontalScrollView>
-
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
+
 </LinearLayout>

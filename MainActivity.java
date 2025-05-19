@@ -21,9 +21,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import android.text.Html;
+import android.view.Menu;
+import android.view.MenuItem;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
             "junio", "julio", "agosto", "septiembre", "octubre",
             "noviembre", "diciembre"
     };
+    private final String[] MESES_CORTOS = {
+            "ene", "feb", "mar", "abr", "may",
+            "jun", "jul", "ago", "sep", "oct",
+            "nov", "dic"
+    };
 
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
@@ -53,6 +66,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
 
         mesMasVentas = findViewById(R.id.mesMasVentas);
         barChart = findViewById(R.id.barChart);
@@ -115,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         header.setBackgroundColor(0xFFCCCCCC); // Gris claro
 
         String[] columnas = {"NUMID", "NOMBRE", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
-                "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE","ELIMINAR"};
+                "JULIO", "AGOSTO", "SEPTI", "OCTUB", "NOVIEM", "DICIEM","ELIMINAR"};
 
         for (String col : columnas) {
             TextView celda = crearCelda(col);
@@ -152,34 +168,37 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // Añadir la fila de datos a la tabla
+                if (id > 4) {
+                    Button btnEliminar = new Button(this);
+                    btnEliminar.setText("🗑️");
+                    btnEliminar.setBackgroundColor(Color.TRANSPARENT);
+                    btnEliminar.setPadding(6, 6, 6, 6);
+                    btnEliminar.setTextColor(Color.RED);
+
+                    final int idFinal = id;
+                    final String nombreFinal = nombre;
+
+                    btnEliminar.setOnClickListener(v -> {
+                        new AlertDialog.Builder(this)
+                                .setTitle("Confirmar eliminación")
+                                .setMessage(Html.fromHtml("¿Estás seguro de que deseas eliminar al comercial <b>" + nombreFinal + "</b> con ID <b>" + idFinal + "</b>?"))
+                                .setPositiveButton("Sí", (dialog, which) -> {
+                                    db.moverVentasAausentes(idFinal);
+                                    db.getWritableDatabase().delete("ventas_comerciales", "id_comercial = ?", new String[]{String.valueOf(idFinal)});
+                                    cargarDatosDesdeBaseDeDatos();
+                                })
+                                .setNegativeButton("Cancelar", null)
+                                .show();
+                    });
+
+                    row.addView(btnEliminar);
+                } else {
+                    // Para mantener la alineación en la tabla (una celda vacía en lugar del botón)
+                    TextView celdaVacia = crearCelda(""); // O puedes usar un espacio o guion si lo prefieres
+                    row.addView(celdaVacia);
+                }
+
                 tablaCuerpo.addView(row);
-
-                Button btnEliminar = new Button(this);
-                btnEliminar.setText("🗑️");
-                btnEliminar.setBackgroundColor(Color.TRANSPARENT);
-                btnEliminar.setPadding(6, 6, 6, 6);
-                btnEliminar.setTextColor(Color.RED);
-
-
-// Necesitas final para usar en el OnClick
-                final int idFinal = id;
-
-                btnEliminar.setOnClickListener(v -> {
-                    new AlertDialog.Builder(this)
-                            .setTitle("Confirmar eliminación")
-                            .setMessage("¿Estás seguro de que deseas eliminar este registro?")
-                            .setPositiveButton("Sí", (dialog, which) -> {
-                                db.moverVentasAausentes(idFinal); // Suma sus datos a AUSENTES
-                                db.getWritableDatabase().delete("ventas_comerciales", "id_comercial = ?", new String[]{String.valueOf(idFinal)}); // Borra la fila
-                                cargarDatosDesdeBaseDeDatos(); // Refresca la vista
-                            })
-                            .setNegativeButton("Cancelar", null)
-                            .show();
-                });
-
-
-
-                row.addView(btnEliminar);
 
             } while (cursor.moveToNext());
         }
@@ -220,8 +239,14 @@ public class MainActivity extends AppCompatActivity {
         cell.setPadding(6, 6, 6, 6);
         cell.setGravity(Gravity.CENTER);
         cell.setTextColor(getResources().getColor(android.R.color.black));
+
+        // Altura fija (por ejemplo 48dp convertidos a píxeles)
+        int alturaFija = (int) (32 * getResources().getDisplayMetrics().density); // 48dp
+        cell.setHeight(alturaFija);
+
         return cell;
     }
+
 
     // Mostrar gráfica con datos proporcionados
     private void mostrarGrafico(List<BarEntry> entradas) {
@@ -261,6 +286,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Leyenda en blanco
         barChart.getLegend().setTextColor(Color.WHITE);
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // Las etiquetas se muestran en la parte inferior
+        xAxis.setGranularity(1f); // Para asegurarse de que cada barra tiene una etiqueta
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(MESES_CORTOS)); // Usar las primeras 3 letras de cada mes
+
+        // Reducir el tamaño de las etiquetas si es necesario
+        xAxis.setLabelRotationAngle(-45f); // Rotar ligeramente las etiquetas para que no se sobrepongan
+        xAxis.setLabelCount(12);
 
         // Forzar redibujado
         barChart.invalidate();
@@ -300,8 +333,28 @@ public class MainActivity extends AppCompatActivity {
             celdaCabecera.setWidth(maxAncho);
         }
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Infla el menú que has creado
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Verifica si el ítem seleccionado es "Añadir Comercial"
+        if (item.getItemId() == R.id.item_agregar_comercial) {
+            // Crear la Intent para abrir la actividad AgregarComercialActivity
+            Intent intent = new Intent(MainActivity.this, AgregarComercialActivity.class);
+            activityResultLauncher.launch(intent);
+            return true;
+        }
+        if (item.getItemId() == R.id.id_boton_menu_eliminar_ventas) {
+            // Crear la Intent para abrir la actividad AgregarComercialActivity
+            Intent intent = new Intent(MainActivity.this, EliminarVentasComerciales.class);
+            activityResultLauncher.launch(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
-
-
-

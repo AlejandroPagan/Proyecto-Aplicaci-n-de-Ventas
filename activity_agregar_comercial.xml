@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:padding="16dp"
+android:backgroundTint="#F2F4F8">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:text="Agregar nuevo comercial"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+    <EditText
+        android:id="@+id/etNombreComercial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:hint="Nómbre del comercial"
+        android:inputType="text" />
+
+
+    <!-- Campo: Número del comercial -->
+    <EditText
+        android:id="@+id/etNumeroComercial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:hint="Número del comercial"
+        android:inputType="number" />
+    <!-- Campo: Ventas del comercial -->
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGuardar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="#1E3A8A"
+        android:padding="12dp"
+        android:text="AÑADIR COMERCIAL"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:cornerRadius="12dp"
+        app:elevation="4dp"
+        app:rippleColor="?attr/colorControlHighlight" />
+
+    <TableLayout
+        android:id="@+id/tablaVentas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="#EEEEEE"
+        android:stretchColumns="*">
+
+    </TableLayout>
+
+
+    <!--Botón segundo -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVolverVenta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="#1E3A8A"
+        android:padding="12dp"
+        android:text="VOLVER"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:cornerRadius="12dp"
+        app:elevation="4dp"
+        app:rippleColor="?attr/colorControlHighlight" />
+</LinearLayout>
+</ScrollView>

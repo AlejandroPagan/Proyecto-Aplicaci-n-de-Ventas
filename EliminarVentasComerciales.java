@@ -1,7 +1,6 @@
 package com.example.aplicacinaselab02;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,10 +13,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Calendar;
 
-public class AgregarVentasActivity extends AppCompatActivity {
+
+public class EliminarVentasComerciales extends AppCompatActivity {
 
     private EditText etIdComercial, etCantidadVentas;
-    private Button btnGuardar, btnBorrar, btnMes;
+    private Button btnEliminar, btnVolver, btnMes;
     private TextView tvMesActual;
     private TableLayout tablaVentas;
     private gestorBaseDatos db;
@@ -28,22 +28,22 @@ public class AgregarVentasActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_agregar_ventas);
+        setContentView(R.layout.activity_agregar_ventas);  // Asegúrate de que esta es la vista correcta
 
         etIdComercial = findViewById(R.id.etNumeroComercial);
         etCantidadVentas = findViewById(R.id.etCantidadVentas);
-        btnGuardar = findViewById(R.id.btnGuardar);
-        btnBorrar = findViewById(R.id.btnVolverVenta);
+        btnEliminar = findViewById(R.id.btnEliminar); // ← Usa el ID del botón en XML
+        btnVolver = findViewById(R.id.btnVolverVenta);
         btnMes = findViewById(R.id.btnMes);
         tvMesActual = findViewById(R.id.tvMesActual);
         tablaVentas = findViewById(R.id.tablaVentas);
 
+        db = new gestorBaseDatos(this);
+
         mesActual = getMonthKey(Calendar.getInstance().get(Calendar.MONTH));
         tvMesActual.setText("Mes actual: " + capitalizar(mesActual));
 
-        db = new gestorBaseDatos(this);
-
-        btnGuardar.setOnClickListener(v -> guardarVentas());
+        btnEliminar.setOnClickListener(v -> eliminarVentas());
 
         btnMes.setOnClickListener(v -> {
             final String[] meses = {
@@ -51,7 +51,7 @@ public class AgregarVentasActivity extends AppCompatActivity {
                     "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
             };
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(AgregarVentasActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Selecciona un mes")
                     .setSingleChoiceItems(meses, -1, null)
                     .setPositiveButton("Aceptar", (dialog, whichButton) -> {
@@ -66,13 +66,13 @@ public class AgregarVentasActivity extends AppCompatActivity {
                     .show();
         });
 
-        btnBorrar.setOnClickListener(v -> {
+        btnVolver.setOnClickListener(v -> {
             setResult(RESULT_OK);
             finish();
         });
     }
 
-    private void guardarVentas() {
+    private void eliminarVentas() {
         String idStr = etIdComercial.getText().toString().trim();
         String cantidadStr = etCantidadVentas.getText().toString().trim();
 
@@ -82,31 +82,25 @@ public class AgregarVentasActivity extends AppCompatActivity {
         }
 
         int id = Integer.parseInt(idStr);
-        int cantidad = Integer.parseInt(cantidadStr);
+        int cantidadAEliminar = Integer.parseInt(cantidadStr);
 
         if (!db.existeComercial(id)) {
-            mostrarDialogoCrearComercial(id);
+            Toast.makeText(this, "El comercial con ID " + id + " no existe.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        db.insertarOVentasAcumuladas(id, null, mesActual, cantidad); // null en nombre
-        Toast.makeText(this, "Ventas guardadas correctamente", Toast.LENGTH_SHORT).show();
-        setResult(RESULT_OK);
-    }
+        int ventasActuales = db.obtenerVentasDeComercial(id, mesActual);
 
-    private void mostrarDialogoCrearComercial(int id) {
-        new AlertDialog.Builder(this)
-                .setTitle("Comercial no encontrado")
-                .setMessage("El comercial con ID " + id + " no existe. ¿Deseas crearlo?")
-                .setPositiveButton("Sí", (dialog, which) -> {
-                    // Redirigir a una Activity para crear un nuevo comercial
-                    // Aquí deberías crear AgregarComercialActivity si aún no existe
-                    Intent intent = new Intent(this, AgregarComercialActivity.class);
-                    intent.putExtra("id", id);
-                    startActivity(intent);
-                })
-                .setNegativeButton("No", null)
-                .show();
+        if (ventasActuales < cantidadAEliminar) {
+            Toast.makeText(this, "No hay suficientes ventas para eliminar", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int nuevasVentas = ventasActuales - cantidadAEliminar;
+        db.actualizarVentas(id, mesActual, nuevasVentas);
+
+        Toast.makeText(this, "Ventas eliminadas correctamente", Toast.LENGTH_SHORT).show();
+        setResult(RESULT_OK);
     }
 
     private String getMonthKey(int month) {
